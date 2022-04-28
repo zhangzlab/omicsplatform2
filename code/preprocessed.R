@@ -29,6 +29,11 @@ merge<-merge(data,meta,by="sample")
 nrows<-nrow(data)
 cols<-colnames(merge)
 
+
+if(!dir.exists("step1/image")){
+	dir.create("step1/image",recursive = TRUE)
+}
+
 for(subrow in 1:nrows){
 
     sam_name<-merge[subrow,1]
@@ -43,12 +48,14 @@ for(subrow in 1:nrows){
 
     seuobj[["percent.mt"]] <- PercentageFeatureSet(seuobj, pattern = "^MT")
     VlnPlot(seuobj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
-    ggsave(paste("step1_",sam_name,"_raw_Count_MT_VlnPlot.pdf",sep=""),width=8,height=6,dpi=600)
+    ggsave(paste("step1/image/",sam_name,"_raw_Count_MT_VlnPlot.pdf",sep=""),width=8,height=6,dpi=600)
+    ggsave(paste("step1/image/",sam_name,"_raw_Count_MT_VlnPlot.png",sep=""),width=8,height=6,dpi=600)
 
     plot1 <- FeatureScatter(seuobj, feature1 = "nCount_RNA", feature2 = "percent.mt")
     plot2 <- FeatureScatter(seuobj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
     plot1 + plot2
-    ggsave(paste("step1_",sam_name,"_raw_Count_MT_Scatter.pdf",sep=""),width=8,height=6,dpi=600)
+    ggsave(paste("step1/image/",sam_name,"_raw_Count_MT_Scatter.pdf",sep=""),width=8,height=6,dpi=600)
+    ggsave(paste("step1/image/",sam_name,"_raw_Count_MT_Scatter.png",sep=""),width=8,height=6,dpi=600)
 
     raw_cell <- nrow(seuobj@meta.data)
     for(order in 3:length(cols)){
@@ -59,8 +66,8 @@ for(subrow in 1:nrows){
     tmp_cell_num<-as.data.frame(matrix(c(sam_name,raw_cell),nrow=1,ncol=2))
     cell_stat<-rbind(cell_stat,tmp_cell_num)
 
-    saveRDS(seuobj,paste("step1_",sam_name,"_raw.Rds",sep=""))
+    saveRDS(seuobj,paste(sam_name,"_raw.Rds",sep=""))
     
 }
 colnames(cell_stat)<-c("sample","raw_cell")
-write.table(cell_stat,paste("step1_samples_raw_cell_num.csv",sep=""),sep=",",row.names=FALSE,quote=FALSE)
+write.table(cell_stat,paste("step1/samples_raw_cell_num.csv",sep=""),sep=",",row.names=FALSE,quote=FALSE)

@@ -21,6 +21,9 @@ utils::methods(class = 'Seurat')
 library(tools)
 library(stringr)
 
+if(!dir.exists("step6")){
+        dir.create("step6",recursive = TRUE)
+}
 all <- readRDS(file_path_as_absolute(opt$rds))
 
 comps<-read.table(file_path_as_absolute(opt$comp),header=T,sep="\t")
@@ -31,8 +34,8 @@ for(num in 1:nrows){
 	ctl_data<-all
 	case_data<-all
 
-	ctl_sam<-comps[num,1]
-	case_sam<-comps[num,2]
+	ctl_sam<-comps[num,2]
+	case_sam<-comps[num,1]
 
 	ctl_infor<-unlist(strsplit(ctl_sam,split=";"))
 	case_infor<-unlist(strsplit(case_sam,split=";"))
@@ -87,7 +90,7 @@ for(num in 1:nrows){
     	name<-data.frame(gene=rownames(data_diff))
     	data_diff<-cbind(name,data_diff)
 
-    	out_name<-paste("step6_",case_name,"-vs-",ctl_name,"_diff_sign_gene.csv",sep="")
+    	out_name<-paste("step6/",case_name,"-vs-",ctl_name,"_DEGs.csv",sep="")
     	write.table(data_diff,file=out_name,sep=",",col.names=TRUE,quote=FALSE,row.names=FALSE)
 	
 }

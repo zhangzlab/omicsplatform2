@@ -25,6 +25,10 @@ library(ggplot2)
 utils::methods(class = 'Seurat')
 library(stringr)
 
+if(!dir.exists("step8/image")){
+        dir.create("step8/image",recursive = TRUE)
+}
+
 db<-"/code/c2.cp.kegg.v7.5.1.symbols.gmt"
 if(opt$db == "GO"){
 	db<-"/code/c5.go.v7.5.1.symbols.gmt"
@@ -128,9 +132,18 @@ for(num in 1:nrows){
 	glist <- sort(glist,decreasing = T)
 	name<- bitr(commean$gene, fromType = "SYMBOL",toType = c("ENTREZID", "ENSEMBL"),OrgDb = org.Hs.eg.db)
 	gsea_out<- GSEA(glist, TERM2GENE=dbs, verbose=FALSE, pvalueCutoff =1)
-    #gsea_out$Description <-tolower(gsea_out$Description)
-
-	out_file<-paste("step8_",case_name,"-vs-",ctl_name,"_",opt$db,"_gsea.csv",sep="")
+        #gsea_out$Description <-tolower(gsea_out$Description)
+	num_gsea<-nrow(gsea_out)
+	for(order in 1:num_gsea){
+		 gsea_title<-gsea_out[order,2]
+		 preout<-paste("step8/image/",case_name,"-vs-",ctl_name,"_",opt$db,"_",gsea_title,sep="")
+		 p<-gseaplot2(gsea_out,title = gsea_title,order, color="red",base_size = 16, subplots = 1:2, pvalue_table = T)
+		 ggsave(paste(preout,".pdf",sep=""),width=8,height=6)
+		 ggsave(paste(preout,".png",sep=""),width=8,height=6)
+	}
+		 
+	out_file<-paste("step8/",case_name,"-vs-",ctl_name,"_",opt$db,"_gsea.csv",sep="")
  	write.table(gsea_out,out_file,quote=FALSE,sep=",",col.names=TRUE,row.names=FALSE)
+	
 }
 #},silent=T)

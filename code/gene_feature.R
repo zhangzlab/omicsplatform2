@@ -22,6 +22,10 @@ library(ggplot2)
 utils::methods(class = 'Seurat')
 library(tools)
 
+if(!dir.exists("step4/image")){
+        dir.create("step4/image",recursive = TRUE)
+}
+
 data <- readRDS(file_path_as_absolute(opt$rds))
 genes <-read.table(file_path_as_absolute(opt$gene),header=T,sep="\t")
 
@@ -43,7 +47,6 @@ if(!is.null (opt$infor)){
 	}
 }	
 
-
 DefaultAssay(data) <- "RNA"
 
 cell_num<-length(unique(data@meta.data$celltype))
@@ -51,16 +54,20 @@ ngenes<-nrow(genes)
 nwidths<-cell_num*0.8+2
 nheights<-ngenes*0.8+1
 
-for(num in 1:ngenes){
+for(num in 1:ngenes)
+	try({
 
 	gene_name<-genes[num,1]
 	FeaturePlot(data,features = genes[num,1],pt.size=0.6, raster=FALSE)
-	ggsave(paste("step4_",gene_name,"_exp_features.pdf",sep=""),width=8,height=6)
+	ggsave(paste("step4/image/",gene_name,"_exp_features.pdf",sep=""),width=8,height=6)
+	ggsave(paste("step4/image/",gene_name,"_exp_features.png",sep=""),width=8,height=6)
 
 	VlnPlot(data, features =genes[num,1],group.by='celltype')
-	ggsave(paste("step4_",gene_name,"_exp_vlnplot.pdf",sep=""),width=nwidths,height=5)
-}
+	ggsave(paste("step4/image/",gene_name,"_exp_vlnplot.pdf",sep=""),width=nwidths,height=5)
+	ggsave(paste("step4/image/",gene_name,"_exp_vlnplot.png",sep=""),width=nwidths,height=5)
+},silent=TRUE)
 
 p<-DotPlot(data, features = genes[,1])+coord_flip()
 p<-p+theme(axis.text.x=element_text(size=14,angle=45,hjust=1,vjust=1),axis.text.y=element_text(size=14),axis.title.x=element_text(),axis.title.y=element_text())
-ggsave("step4_all_genes_exp_point_features.pdf",width=nwidths,height=nheights)
+ggsave("step4/image/all_genes_exp_point_features.pdf",width=nwidths,height=nheights)
+ggsave("step4/image/all_genes_exp_point_features.png",width=nwidths,height=nheights)
